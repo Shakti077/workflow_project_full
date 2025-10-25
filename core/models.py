@@ -20,6 +20,7 @@ class Task(models.Model):
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     time_taken = models.DurationField(null=True, blank=True)
+    print("Task model created")
 
     def accept(self):
         self.status = 'in_progress'
