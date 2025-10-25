@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="text-center">
+  <h1>Welcome to WorkFlow Management</h1>
+  <p>Manage tasks efficiently with your team</p>
+  {% if not user.is_authenticated %}
+    <a href="{% url 'login' %}" class="btn btn-primary">Sign In</a>
+  {% else %}
+    <a href="{% url 'dashboard' %}" class="btn btn-success">Go to Dashboard</a>
+  {% endif %}
+</div>
+<div style="text-align:center; margin-top: 60px; color: #888; font-size: 1.1em; font-family: 'Roboto', Arial, sans-serif;">
+  Designed by <span style="color:#ff6f61; font-weight:bold;">Shaktiranjan Sahoo</span>.
+</div>
+{% endblock %}

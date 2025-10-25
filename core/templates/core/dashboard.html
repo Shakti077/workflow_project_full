@@ -1,0 +1,155 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="dashboard-section" style="margin-bottom:32px;">
+  <div class="row">
+    <div class="col-md-6 text-center">
+      <h5 style="color:#43e97b;">My Work Status</h5>
+      <canvas id="myWorkChart" width="220" height="220"></canvas>
+    </div>
+    <div class="col-md-6 text-center">
+      <h5 style="color:#6c63ff;">Global Work Status</h5>
+      <canvas id="globalWorkChart" width="220" height="220"></canvas>
+    </div>
+  </div>
+</div>
+<script id="my-data-json" type="application/json">{{ my_data_json|safe }}</script>
+<script id="global-data-json" type="application/json">{{ global_data_json|safe }}</script>
+<script>
+  // Parse data from JSON script tags
+  const myData = JSON.parse(document.getElementById('my-data-json').textContent);
+  const globalData = JSON.parse(document.getElementById('global-data-json').textContent);
+  const myWorkData = {
+    labels: ['Pending', 'In Progress', 'Rejected', 'Completed'],
+    datasets: [{
+      data: myData,
+      backgroundColor: ['#ffd166', '#43e97b', '#ff5858', '#6c63ff'],
+      borderWidth: 1
+    }]
+  };
+  const globalWorkData = {
+    labels: ['Pending', 'In Progress', 'Rejected', 'Completed'],
+    datasets: [{
+      data: globalData,
+      backgroundColor: ['#ffd166', '#43e97b', '#ff5858', '#6c63ff'],
+      borderWidth: 1
+    }]
+  };
+  window.addEventListener('DOMContentLoaded', function() {
+    new Chart(document.getElementById('myWorkChart'), {
+      type: 'pie',
+      data: myWorkData,
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+    new Chart(document.getElementById('globalWorkChart'), {
+      type: 'pie',
+      data: globalWorkData,
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+  });
+ </script>
+...existing code...
+<h2 class="mb-4" style="font-size:2.2rem; display:flex; align-items:center; gap:12px;">
+  <span style="color:#ff6f61;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-kanban" viewBox="0 0 16 16"><path d="M2.5 3a.5.5 0 0 1 .5.5V13a.5.5 0 0 1-1 0V3.5a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zm4 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 1 .5-.5z"/></svg></span>
+  Dashboard
+</h2>
+<div class="dashboard-section mb-4 d-flex justify-content-end align-items-center" style="box-shadow: 0 2px 8px rgba(67,233,123,0.12);">
+  <a href="{% url 'assign_task' %}" class="btn btn-success mb-3 px-4 py-2">Assign Task</a>
+</div>
+
+<div class="dashboard-section">
+  <h4 class="mt-2" style="display:flex;align-items:center;gap:8px;"><span style="color:#43e97b;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person-badge" viewBox="0 0 16 16"><path d="M6.5 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V3h1.5A1.5 1.5 0 0 1 12.5 4.5v7A1.5 1.5 0 0 1 11 13H5a1.5 1.5 0 0 1-1.5-1.5v-7A1.5 1.5 0 0 1 5 3H6.5V2zm1 1V2h-2v1h2zm-2 1A.5.5 0 0 0 5 4.5v7a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .5-.5v-7A.5.5 0 0 0 11.5 4h-6z"/></svg></span> My Assigned Tasks</h4>
+  <table class="table table-bordered align-middle">
+  <tr>
+    <th>Title</th><th>Description</th><th>Assigned By</th><th>Status</th><th>Actions</th><th>Time Taken</th>
+  </tr>
+  {% for task in my_assigned_tasks %}
+  <tr>
+    <td>{{ task.title }}</td>
+    <td>{{ task.description }}</td>
+    <td>{{ task.assigned_by.username }}</td>
+    <td>
+      {% if task.status == 'pending' %}
+        <span class="badge" style="background:#ffd166; color:#fff; font-size:1em;">Pending</span>
+      {% elif task.status == 'in_progress' %}
+        <span class="badge" style="background:#43e97b; color:#fff; font-size:1em;">In Progress</span>
+      {% elif task.status == 'rejected' %}
+        <span class="badge" style="background:#ff5858; color:#fff; font-size:1em;">Rejected</span>
+      {% elif task.status == 'completed' %}
+        <span class="badge" style="background:#6c63ff; color:#fff; font-size:1em;">Completed</span>
+      {% else %}
+        {{ task.get_status_display }}
+      {% endif %}
+    </td>
+    <td>
+      {% if task.status == 'pending' %}
+        <a href="{% url 'accept_task' task.id %}" class="btn btn-warning btn-sm">Accept</a>
+        <a href="{% url 'reject_task' task.id %}" class="btn btn-danger btn-sm">Reject</a>
+      {% elif task.status == 'in_progress' %}
+        <a href="{% url 'end_task' task.id %}" class="btn btn-success btn-sm">End Task</a>
+      {% endif %}
+    </td>
+    <td>{% if task.time_taken %}{{ task.time_taken }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div class="dashboard-section">
+  <h4 class="mt-2" style="display:flex;align-items:center;gap:8px;"><span style="color:#ff6f61;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16"><path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm4.5 3a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-1 0v-.5a.5.5 0 0 1 .5-.5zm-2 0a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-1 0v-.5a.5.5 0 0 1 .5-.5zm-2 0a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-1 0v-.5a.5.5 0 0 1 .5-.5z"/></svg></span> Tasks I Assigned to Others</h4>
+  <table class="table table-bordered align-middle">
+  <tr>
+    <th>Title</th><th>Description</th><th>Assigned To</th><th>Status</th><th>Time Taken</th>
+  </tr>
+  {% for task in tasks_i_assigned %}
+  <tr>
+    <td>{{ task.title }}</td>
+    <td>{{ task.description }}</td>
+    <td>{{ task.assigned_to.username }}</td>
+    <td>
+      {% if task.status == 'pending' %}
+        <span class="badge" style="background:#ffd166; color:#fff; font-size:1em;">Pending</span>
+      {% elif task.status == 'in_progress' %}
+        <span class="badge" style="background:#43e97b; color:#fff; font-size:1em;">In Progress</span>
+      {% elif task.status == 'rejected' %}
+        <span class="badge" style="background:#ff5858; color:#fff; font-size:1em;">Rejected</span>
+      {% elif task.status == 'completed' %}
+        <span class="badge" style="background:#6c63ff; color:#fff; font-size:1em;">Completed</span>
+      {% else %}
+        {{ task.get_status_display }}
+      {% endif %}
+    </td>
+    <td>{% if task.time_taken %}{{ task.time_taken }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div class="dashboard-section">
+  <h4 class="mt-2" style="display:flex;align-items:center;gap:8px;"><span style="color:#6c63ff;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-globe" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0 0 14A7 7 0 0 0 8 1zm0 1a6 6 0 0 1 0 12A6 6 0 0 1 8 2zm0 1a5 5 0 0 0 0 10A5 5 0 0 0 8 3z"/></svg></span> Global Task Board</h4>
+  <table class="table table-bordered align-middle">
+  <tr>
+    <th>Title</th><th>Description</th><th>Assigned By</th><th>Assigned To</th><th>Status</th><th>Time Taken</th>
+  </tr>
+  {% for task in all_tasks %}
+  <tr>
+    <td>{{ task.title }}</td>
+    <td>{{ task.description }}</td>
+    <td>{{ task.assigned_by.username }}</td>
+    <td>{{ task.assigned_to.username }}</td>
+    <td>
+      {% if task.status == 'pending' %}
+        <span class="badge" style="background:#ffd166; color:#fff; font-size:1em;">Pending</span>
+      {% elif task.status == 'in_progress' %}
+        <span class="badge" style="background:#43e97b; color:#fff; font-size:1em;">In Progress</span>
+      {% elif task.status == 'rejected' %}
+        <span class="badge" style="background:#ff5858; color:#fff; font-size:1em;">Rejected</span>
+      {% elif task.status == 'completed' %}
+        <span class="badge" style="background:#6c63ff; color:#fff; font-size:1em;">Completed</span>
+      {% else %}
+        {{ task.get_status_display }}
+      {% endif %}
+    </td>
+    <td>{% if task.time_taken %}{{ task.time_taken }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </table>
+</div>
+{% endblock %}
