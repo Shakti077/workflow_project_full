@@ -246,9 +246,7 @@ class TaskFromTemplateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         """Create a new task from the template."""
         template = get_object_or_404(
-            Task, 
-            pk=self.kwargs["template_id"], 
-            is_template=True
+            Task, pk=self.kwargs["template_id"], is_template=True
         )
         task = template.create_from_template(
             assigned_to=form.cleaned_data["assigned_to"],
