@@ -4,6 +4,39 @@ from django.contrib.auth.models import User
 from .models import Task, Comment, TaskCategory
 
 
+class TaskSearchForm(forms.Form):
+    """Form for searching tasks."""
+    query = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Search tasks...',
+            'class': 'form-control form-control-lg'
+        })
+    )
+    category = forms.ModelChoiceField(
+        queryset=TaskCategory.objects.all(),
+        required=False,
+        empty_label="All Categories",
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    status = forms.ChoiceField(
+        choices=[('', 'All Status')] + list(Task.STATUS_CHOICES),
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+    priority = forms.ChoiceField(
+        choices=[('', 'All Priorities')] + list(Task.PRIORITY_CHOICES),
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
+        })
+    )
+
+
 class SignUpForm(UserCreationForm):
     email = forms.EmailField()
 

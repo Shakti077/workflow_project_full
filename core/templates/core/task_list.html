@@ -1,0 +1,96 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Task List</h2>
+    
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ search_form.query }}
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ search_form.category.label_tag }}
+                        {{ search_form.category }}
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ search_form.status.label_tag }}
+                        {{ search_form.status }}
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ search_form.priority.label_tag }}
+                        {{ search_form.priority }}
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="row">
+        {% for task in tasks %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title">
+                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                {{ task.title }}
+                            </a>
+                        </h5>
+                        <span class="badge {% if task.status == 'pending' %}bg-warning{% elif task.status == 'in_progress' %}bg-primary{% elif task.status == 'completed' %}bg-success{% else %}bg-danger{% endif %} ms-2">
+                            {{ task.get_status_display }}
+                        </span>
+                    </div>
+                    <p class="card-text text-muted">{{ task.description|truncatewords:30 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            {% if task.category %}
+                            <span class="badge category-badge" data-color="{{ task.category.color|default:'#e9ecef' }}">
+                                {{ task.category.name }}
+                            </span>
+                            {% endif %}
+                            <span class="badge {% if task.priority == 'high' %}bg-danger{% elif task.priority == 'medium' %}bg-warning{% else %}bg-info{% endif %} ms-2">
+                                {{ task.get_priority_display }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            Assigned to: {{ task.assigned_to.username|default:"Unassigned" }}
+                        </small>
+                    </div>
+                    
+                    {% if task.due_date %}
+                    <div class="mt-2 text-end">
+                        <small class="text-{% if task.is_overdue %}danger{% else %}muted{% endif %}">
+                            Due: {{ task.due_date|date:"M d, Y" }}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No tasks found matching your criteria.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

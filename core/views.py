@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView
 from django.http import JsonResponse
-from .forms import SignUpForm, TaskForm, CommentForm
+from django.db.models import Q
+from .forms import SignUpForm, TaskForm, CommentForm, TaskSearchForm
 from .models import Task, TaskCategory, Comment, TaskHistory, TaskNotification
 import json
 
@@ -147,7 +148,7 @@ def complete_task(request, task_id):
 
 
 class TaskListView(LoginRequiredMixin, ListView):
-    """View for listing tasks with advanced filtering."""
+    """View for listing tasks with advanced filtering and search."""
 
     model = Task
     template_name = "core/task_list.html"
@@ -155,21 +156,33 @@ class TaskListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Task.objects.filter(is_template=False)
-        category = self.request.GET.get("category")
-        priority = self.request.GET.get("priority")
-        status = self.request.GET.get("status")
+        form = TaskSearchForm(self.request.GET)
+        
+        if form.is_valid():
+            query = form.cleaned_data.get("query")
+            category = form.cleaned_data.get("category")
+            priority = form.cleaned_data.get("priority")
+            status = form.cleaned_data.get("status")
 
-        if category:
-            queryset = queryset.filter(category_id=category)
-        if priority:
-            queryset = queryset.filter(priority=priority)
-        if status:
-            queryset = queryset.filter(status=status)
+            if query:
+                queryset = queryset.filter(
+                    Q(title__icontains=query) |
+                    Q(description__icontains=query) |
+                    Q(assigned_to__username__icontains=query) |
+                    Q(assigned_by__username__icontains=query)
+                )
+            if category:
+                queryset = queryset.filter(category=category)
+            if priority:
+                queryset = queryset.filter(priority=priority)
+            if status:
+                queryset = queryset.filter(status=status)
 
         return queryset.order_by("-created_at")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["search_form"] = TaskSearchForm(self.request.GET or None)
         context["categories"] = TaskCategory.objects.all()
         return context
 
