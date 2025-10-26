@@ -6,34 +6,31 @@ from .models import Task, Comment, TaskCategory
 
 class TaskSearchForm(forms.Form):
     """Form for searching tasks."""
+
     query = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Search tasks...',
-            'class': 'form-control form-control-lg'
-        })
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Search tasks...",
+                "class": "form-control form-control-lg",
+            }
+        ),
     )
     category = forms.ModelChoiceField(
         queryset=TaskCategory.objects.all(),
         required=False,
         empty_label="All Categories",
-        widget=forms.Select(attrs={
-            'class': 'form-select'
-        })
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     status = forms.ChoiceField(
-        choices=[('', 'All Status')] + list(Task.STATUS_CHOICES),
+        choices=[("", "All Status")] + list(Task.STATUS_CHOICES),
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-select'
-        })
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     priority = forms.ChoiceField(
-        choices=[('', 'All Priorities')] + list(Task.PRIORITY_CHOICES),
+        choices=[("", "All Priorities")] + list(Task.PRIORITY_CHOICES),
         required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-select'
-        })
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
 
 

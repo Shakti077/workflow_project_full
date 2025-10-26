@@ -157,7 +157,7 @@ class TaskListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = Task.objects.filter(is_template=False)
         form = TaskSearchForm(self.request.GET)
-        
+
         if form.is_valid():
             query = form.cleaned_data.get("query")
             category = form.cleaned_data.get("category")
@@ -166,10 +166,10 @@ class TaskListView(LoginRequiredMixin, ListView):
 
             if query:
                 queryset = queryset.filter(
-                    Q(title__icontains=query) |
-                    Q(description__icontains=query) |
-                    Q(assigned_to__username__icontains=query) |
-                    Q(assigned_by__username__icontains=query)
+                    Q(title__icontains=query)
+                    | Q(description__icontains=query)
+                    | Q(assigned_to__username__icontains=query)
+                    | Q(assigned_by__username__icontains=query)
                 )
             if category:
                 queryset = queryset.filter(category=category)
