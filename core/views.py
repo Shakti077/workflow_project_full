@@ -6,7 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView
 from django.http import JsonResponse
 from django.db.models import Q
-from .forms import SignUpForm, TaskForm, CommentForm, TaskSearchForm
+from .forms import (SignUpForm, TaskForm, CommentForm, 
+                   TaskSearchForm, TaskCategoryForm)
 from .models import Task, TaskCategory, Comment, TaskHistory, TaskNotification
 import json
 
@@ -303,6 +304,22 @@ def task_priority_update(request, pk):
         }
     )
 
+
+@login_required
+def task_categories(request):
+    """View for managing task categories."""
+    categories = TaskCategory.objects.all()
+    if request.method == "POST":
+        form = TaskCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list')
+    else:
+        form = TaskCategoryForm()
+    return render(request, 'core/task_categories.html', {
+        'categories': categories,
+        'form': form
+    })
 
 @login_required
 def task_notifications(request):

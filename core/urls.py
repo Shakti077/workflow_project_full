@@ -40,7 +40,7 @@ urlpatterns = [
         name="task_from_template",
     ),
     # Categories
-    path("categories/", views.TaskListView.as_view(), name="category_list"),
+    path("categories/", views.task_categories, name="category_list"),
     # Notifications
     path("notifications/", views.task_notifications, name="notifications"),
 ]
