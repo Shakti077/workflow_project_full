@@ -4,50 +4,126 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-6">
-            <h2>Task Categories</h2>
             <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">Add New Category</h2>
+                </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         <div class="mb-3">
-                            {{ form.name.label_tag }}
-                            {{ form.name }}
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Category Name</label>
+                            {{ form.name|add_class:"form-control" }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.name.errors }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
-                            {{ form.description.label_tag }}
-                            {{ form.description }}
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description|add_class:"form-control" }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
-                            {{ form.color.label_tag }}
-                            {{ form.color }}
+                            <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
+                            <div class="d-flex gap-2 align-items-center">
+                                {{ form.color|add_class:"form-control form-control-color" }}
+                                <div class="color-preview rounded" id="colorPreview">&nbsp;</div>
+                            </div>
+                            {% if form.color.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.color.errors }}
+                            </div>
+                            {% endif %}
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Category</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Add Category
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <h3>Existing Categories</h3>
-            {% if categories %}
-                <div class="list-group">
-                    {% for category in categories %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-1">{{ category.name }}</h5>
-                                <small class="text-muted">{{ category.description }}</small>
-                            </div>
-                            <span class="badge" style="background-color: {{ category.color }}">
-                                &nbsp;
-                            </span>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h4 mb-0">Existing Categories</h3>
+                </div>
+                <div class="card-body p-0">
+                    {% if categories %}
+                        <div class="list-group list-group-flush">
+                            {% for category in categories %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">{{ category.name }}</h5>
+                                        <small class="text-muted">{{ category.description }}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="category-color-dot" data-color="{{ category.color }}"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <div class="text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                <p>No categories defined yet. Add your first category using the form.</p>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
-            {% else %}
-                <div class="alert alert-info">
-                    No categories defined yet. Add your first category using the form.
-                </div>
-            {% endif %}
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .category-color-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+        display: inline-block;
+    }
+    .color-preview {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+        border-radius: 4px;
+    }
+    .form-control-color {
+        width: 100px !important;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle color preview for input
+    const colorInput = document.querySelector('input[type="color"]');
+    const colorPreview = document.getElementById('colorPreview');
+    
+    if (colorInput && colorPreview) {
+        colorInput.addEventListener('input', function() {
+            colorPreview.style.backgroundColor = this.value;
+        });
+        // Set initial color
+        colorPreview.style.backgroundColor = colorInput.value;
+    }
+
+    // Set colors for category dots
+    document.querySelectorAll('.category-color-dot').forEach(dot => {
+        const color = dot.getAttribute('data-color');
+        if (color) {
+            dot.style.backgroundColor = color;
+        }
+    });
+});
+</script>
 {% endblock %}

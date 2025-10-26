@@ -120,7 +120,27 @@ class CommentForm(forms.ModelForm):
 
 
 class TaskCategoryForm(forms.ModelForm):
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter category name'
+        })
+    )
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Enter category description'
+        })
+    )
+    color = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'type': 'color',
+            'class': 'form-control form-control-color',
+            'title': 'Choose category color'
+        })
+    )
+
     class Meta:
         model = TaskCategory
         fields = ["name", "description", "color"]
-        widgets = {"color": forms.TextInput(attrs={"type": "color"})}
