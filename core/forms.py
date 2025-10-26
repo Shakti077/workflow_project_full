@@ -43,8 +43,38 @@ class SignUpForm(UserCreationForm):
 
 
 class TaskForm(forms.ModelForm):
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter task title'
+        })
+    )
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Enter task description'
+        })
+    )
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    category = forms.ModelChoiceField(
+        queryset=TaskCategory.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        required=False
+    )
+    priority = forms.ChoiceField(
+        choices=Task.PRIORITY_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
     due_date = forms.DateTimeField(
-        required=False, widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
+        required=False,
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control'
+        })
     )
 
     class Meta:
@@ -62,6 +92,7 @@ class TaskForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["category"].queryset = TaskCategory.objects.all()
         self.fields["category"].empty_label = "Select a category"
+        self.fields["assigned_to"].empty_label = "Select assignee"
 
 
 class TaskTemplateForm(forms.ModelForm):
